@@ -2,9 +2,6 @@ from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from mysite.models import Product
 import random
-from mysite.models import Product
-
-# Create your views here.
 
 
 def about(request):
@@ -49,3 +46,32 @@ def listing(request):
         tags = tags + '<td>{}</td></tr>'.format(p.qty)
 
     return HttpResponse(html.format(tags))
+
+
+def disp_detail(request, sku):
+    html = '''
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>{}</title>
+</head>
+<body>
+<h2>{}</h2>
+<hr>
+<table width=400 border=1 bgcolor='#ccffcc'>
+{}
+</table>
+<a href='/list'>回列表</a>
+</body>
+</html>
+'''
+    try:
+        p = Product.objects.get(sku=sku)
+    except Product.DoesNotExist:
+        raise Http404('找不到指定的品項編號')
+    tags = '<tr><td>品項編號</td><td>{}</td></tr>'.format(p.sku)
+    tags = tags + '<tr><td>品項名稱</td><td>{}</td>'.format(p.name)
+    tags = tags + '<tr><td>二手售價</td><td>{}</td>'.format(p.price)
+    tags = tags + '<tr><td>庫存數量</td><td>{}</td>'.format(p.qty)
+    return HttpResponse(html.format(p.name, p.name, tags))
